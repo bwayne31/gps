@@ -444,7 +444,7 @@
                     currentPlayerIndex++;
                     updateScoreEntryTitle();
                 }
-
+                
                 updateUI();
                 navigator.geolocation.getCurrentPosition(displayDistances);
             }
@@ -513,14 +513,23 @@
                 // Only show score entry if scorecard is enabled
                 if (isScorecardEnabled) {
                     const allScoresEntered = players.every(p => p.scores[currentHoleIndex] !== null);
+                    
+                    // If all scores for the current hole have been entered
                     if (allScoresEntered) {
-                         if (currentHoleIndex < courseData.holes.length - 1) {
+                        // Check if it's the last hole
+                        if (currentHoleIndex === courseData.holes.length - 1) {
+                            // If it's the last hole, show the scorecard
+                            showScorecard();
+                            document.getElementById('message-area').textContent = `Round complete!`;
+                        } else {
+                            // If not the last hole, advance to the next
                             currentHoleIndex++;
                             updateUI();
                             navigator.geolocation.getCurrentPosition(displayDistances);
                             document.getElementById('message-area').textContent = `Moved to hole ${courseData.holes[currentHoleIndex].hole}.`;
                         }
                     } else {
+                        // If scores are not entered, pop up the scorecard
                         showScoreEntry(courseData.holes[currentHoleIndex].hole);
                         document.getElementById('message-area').textContent = `Please enter scores for hole ${courseData.holes[currentHoleIndex].hole}.`;
                     }
