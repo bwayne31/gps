@@ -430,16 +430,21 @@
                 players[currentPlayerIndex].scores[currentHoleIndex] = parseInt(score);
                 document.getElementById('score-entry-message').textContent = `Score of ${score} saved for ${players[currentPlayerIndex].name}.`;
                 
-                currentPlayerIndex++;
-                if (currentPlayerIndex >= players.length) {
+                const allScoresEntered = players.every(p => p.scores[currentHoleIndex] !== null);
+
+                if (allScoresEntered) {
                     currentPlayerIndex = 0;
-                    currentHoleIndex++;
+                    if (currentHoleIndex < courseData.holes.length - 1) {
+                        currentHoleIndex++;
+                    }
+                    
                     document.getElementById('score-entry-view').classList.add('hidden');
                     document.getElementById('main-view').classList.remove('hidden');
                 } else {
+                    currentPlayerIndex++;
                     updateScoreEntryTitle();
                 }
-                
+
                 updateUI();
                 navigator.geolocation.getCurrentPosition(displayDistances);
             }
@@ -505,11 +510,28 @@
 
             // UI event listeners (same as before)
             document.getElementById('next-hole-btn').addEventListener('click', () => {
-                if (currentHoleIndex < courseData.holes.length - 1) {
-                    currentHoleIndex++;
-                    updateUI();
-                    navigator.geolocation.getCurrentPosition(displayDistances);
-                    document.getElementById('message-area').textContent = `Moved to hole ${courseData.holes[currentHoleIndex].hole}.`;
+                // Only show score entry if scorecard is enabled
+                if (isScorecardEnabled) {
+                    const allScoresEntered = players.every(p => p.scores[currentHoleIndex] !== null);
+                    if (allScoresEntered) {
+                         if (currentHoleIndex < courseData.holes.length - 1) {
+                            currentHoleIndex++;
+                            updateUI();
+                            navigator.geolocation.getCurrentPosition(displayDistances);
+                            document.getElementById('message-area').textContent = `Moved to hole ${courseData.holes[currentHoleIndex].hole}.`;
+                        }
+                    } else {
+                        showScoreEntry(courseData.holes[currentHoleIndex].hole);
+                        document.getElementById('message-area').textContent = `Please enter scores for hole ${courseData.holes[currentHoleIndex].hole}.`;
+                    }
+                } else {
+                    // If scorecard is not enabled, just advance the hole
+                    if (currentHoleIndex < courseData.holes.length - 1) {
+                        currentHoleIndex++;
+                        updateUI();
+                        navigator.geolocation.getCurrentPosition(displayDistances);
+                        document.getElementById('message-area').textContent = `Moved to hole ${courseData.holes[currentHoleIndex].hole}.`;
+                    }
                 }
             });
 
